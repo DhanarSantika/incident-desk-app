@@ -190,6 +190,9 @@
       if (inc.status === "resolved" && !inc.resolvedAt) {
         return pos + " is resolved but has no resolvedAt timestamp.";
       }
+      if (inc.resolvedAt && inc.status !== "resolved") {
+        return pos + " has a resolvedAt timestamp but is not resolved.";
+      }
       if (inc.resolvedAt && Date.parse(inc.resolvedAt) < Date.parse(inc.startedAt)) {
         return pos + " resolvedAt must not be earlier than startedAt.";
       }
@@ -416,7 +419,10 @@
 
   function latestUpdateText(inc) {
     if (!inc.updates.length) return "No updates yet.";
-    var last = inc.updates[inc.updates.length - 1];
+    var last = inc.updates[0];
+    for (var i = 1; i < inc.updates.length; i++) {
+      if (inc.updates[i].at > last.at) last = inc.updates[i];
+    }
     return ageFrom(last.at) + " - " + last.author;
   }
 
