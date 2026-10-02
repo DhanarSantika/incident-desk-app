@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Incident Desk</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-row">
+      <div class="header-id">
+        <h1>Incident Desk</h1>
+        <p class="tagline">Engineering incident dashboard. Local data only.</p>
+      </div>
+      <div class="header-actions">
+        <label class="field">
+          <span class="field-label" id="theme-label">Theme</span>
+          <select id="theme-select" aria-labelledby="theme-label">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <button type="button" id="export-btn">Export JSON</button>
+        <label class="visually-hidden" for="import-file">Import data file</label>
+        <input type="file" id="import-file" accept="application/json,.json">
+        <button type="button" id="import-btn">Import JSON</button>
+        <button type="button" id="reset-btn">Reset demo data</button>
+      </div>
+    </div>
+    <p class="summary" id="summary" aria-live="polite"></p>
+  </header>
+
+  <main class="layout">
+    <aside class="panel" aria-labelledby="services-h">
+      <h2 id="services-h">Service health</h2>
+      <ul class="service-list" id="service-list"></ul>
+    </aside>
+
+    <section class="panel" aria-labelledby="incidents-h">
+      <h2 id="incidents-h">Incidents</h2>
+
+      <div class="toolbar" role="group" aria-label="Incident filters">
+        <label class="field">
+          <span class="field-label" id="search-label">Search</span>
+          <input type="search" id="search" aria-labelledby="search-label"
+                 placeholder="Title or affected service">
+        </label>
+        <label class="field">
+          <span class="field-label" id="status-label">Status</span>
+          <select id="status-filter" aria-labelledby="status-label">
+            <option value="">All statuses</option>
+            <option value="open">Open</option>
+            <option value="monitoring">Monitoring</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label" id="severity-label">Severity</span>
+          <select id="severity-filter" aria-labelledby="severity-label">
+            <option value="">All severities</option>
+            <option value="sev-1">SEV 1 — Critical</option>
+            <option value="sev-2">SEV 2 — High</option>
+            <option value="sev-3">SEV 3 — Medium</option>
+            <option value="sev-4">SEV 4 — Low</option>
+          </select>
+        </label>
+        <button type="button" id="new-incident-btn" aria-expanded="false">
+          New incident
+        </button>
+      </div>
+
+      <form class="incident-form" id="new-incident-form" hidden>
+        <h3>Create incident</h3>
+        <label class="field">
+          <span class="field-label" id="new-title-label">Title</span>
+          <input type="text" id="new-title" aria-labelledby="new-title-label"
+                 required maxlength="120" autocomplete="off">
+        </label>
+        <div class="form-row">
+          <label class="field">
+            <span class="field-label" id="new-severity-label">Severity</span>
+            <select id="new-severity" aria-labelledby="new-severity-label">
+              <option value="sev-1">SEV 1 — Critical</option>
+              <option value="sev-2" selected>SEV 2 — High</option>
+              <option value="sev-3">SEV 3 — Medium</option>
+              <option value="sev-4">SEV 4 — Low</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label" id="new-start-label">Start time</span>
+            <input type="datetime-local" id="new-start"
+                   aria-labelledby="new-start-label" required>
+          </label>
+        </div>
+        <fieldset class="field">
+          <legend class="field-label" id="new-services-legend">Affected services</legend>
+          <div id="new-services" class="check-list"></div>
+        </fieldset>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Create incident</button>
+          <button type="button" id="cancel-new-btn">Cancel</button>
+        </div>
+      </form>
+
+      <ul class="incident-list" id="incident-list"></ul>
+      <p class="empty-note" id="empty-note" hidden></p>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Incident Desk — static build. Data stays in this browser.</p>
+  </footer>
+
+  <div id="live-region" class="visually-hidden" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
