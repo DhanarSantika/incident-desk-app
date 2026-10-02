@@ -12,8 +12,8 @@
         "qwen3.8-27b-local": {
           "name": "Qwen3.8 27B UD-Q2_K_XL",
           "limit": {
-            "context": 65536,
-            "output": 8192
+            "context": 131072,
+            "output": 32768 
           }
         }
       }
