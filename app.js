@@ -106,7 +106,8 @@
 
   function persist() {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      var doc = { v: 1, services: state.services, incidents: state.incidents };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(doc));
     } catch (e) {
       announce("Could not save: local storage is full or unavailable. Changes may be lost.");
     }
@@ -131,6 +132,9 @@
 
   function validateState(data) {
     if (!isObject(data)) return "Data must be a JSON object.";
+    if (data.v !== undefined && data.v !== 1) {
+      return "Unsupported data version: " + data.v + " (expected 1).";
+    }
     if (!Array.isArray(data.services)) return "Missing or invalid 'services' array.";
     if (!Array.isArray(data.incidents)) return "Missing or invalid 'incidents' array.";
     if (data.services.length > LIMIT_SERVICES) {
@@ -158,6 +162,7 @@
       }
     }
 
+    var seenIncidentIds = {};
     for (var j = 0; j < data.incidents.length; j++) {
       var inc = data.incidents[j];
       var pos = "incidents[" + j + "]";
@@ -165,6 +170,8 @@
       if (!isNum(inc.id) || !Number.isInteger(inc.id) || inc.id <= 0) {
         return pos + ".id must be a positive integer.";
       }
+      if (seenIncidentIds[inc.id]) return "Duplicate incident id " + inc.id + ".";
+      seenIncidentIds[inc.id] = true;
       if (SEVERITIES.indexOf(inc.severity) === -1) {
         return pos + ".severity must be one of: " + SEVERITIES.join(", ") + ".";
       }
@@ -569,6 +576,7 @@
         announce("Update time cannot be in the future.");
         return;
       }
+      if (!bodyText) { announce("Update text is required."); return; }
       inc.updates.push({
         at: new Date(ms).toISOString(),
         author: author,
@@ -675,7 +683,8 @@
       var picked = [];
       var children = els.newServices.children;
       for (var i = 0; i < children.length; i++) {
-        if (children[i].checked) picked.push(children[i].value);
+        var cb = children[i].firstElementChild;
+        if (cb && cb.checked) picked.push(cb.value);
       }
       if (!picked.length) { announce("Select at least one affected service."); return; }
       var id = nextIncidentId();
@@ -724,6 +733,14 @@
       data = JSON.parse(text);
     } catch (e) {
       announce("Import failed: the file is not valid JSON.");
+      return;
+    }
+    if (!isObject(data) || data.app !== "incident-desk") {
+      announce("Import failed: expected app 'incident-desk'.");
+      return;
+    }
+    if (data.version !== 1) {
+      announce("Import failed: unsupported version " + data.version + ".");
       return;
     }
     var err = validateState(data);
